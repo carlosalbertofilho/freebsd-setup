@@ -1,0 +1,88 @@
+;; Hey, Emacs! This is a -*- lisp -*- file!
+(in-package :stumpwm)
+
+(defun x-setup-once ()
+  (defvar *x-setup-initialized*)
+  (if (boundp '*x-setup-initialized*)
+      (message "Already initialized, so skipping X setup.")
+      (progn
+        (run-shell-command "xset b off")
+        (run-shell-command "mixer vol 50:50")
+        (run-shell-command "xscreensaver &")
+        (run-shell-command "setxkbmap -option ctrl:swapcaps")
+        (emacs)
+        (setq *x-setup-initialized* t))))
+
+(defcommand chromium () ()
+            "Start Chromium unless it is already running, in which case focus it."
+            (run-or-raise "chrome" '(:class "Chromium-browser")))
+
+(defcommand firefox () ()
+            "Start Firefox unless it is already running, in which case focus it."
+            (run-or-raise "firefox" '(:class "Firefox")))
+
+(defcommand screen-saver () ()
+            "Turns off the screen until a key is pressed"
+            (run-shell-command
+             "xscreensaver-command -lock"))
+
+(defcommand show-battery-state () ()
+            "Shows the state of the first battery"
+            (echo-string
+             (current-screen)
+             (cl-ppcre:regex-replace-all
+              ".*:\\s+"
+              (run-shell-command "acpiconf -i0 | grep -i 'remaining capacity'" t)
+              "")))
+
+(defcommand sublime () ()
+            "Start Sublime Text 3 unless it is already running, in which case focus it."
+            (run-or-raise "sublime" '(:class "Sublime_text")))
+
+(defcommand suspend () ()
+            "Suspends the system (to RAM)"
+            (progn
+              (run-shell-command
+               "xscreensaver-command -lock")
+              (run-shell-command
+               "sudo acpiconf -s 3")))
+
+(defcommand terminal () ()
+            "Start sakura unless it is already running, in which case focus it."
+            (run-or-raise "sakura" '(:class "Sakura")))
+
+(defcommand virtualbox () ()
+            "Start Oracle VirtualBox unless it is already running, in which case focus it."
+            (run-or-raise "virtualbox" '(:class "VirtualBox")))
+
+(defcommand volume-down () ()
+            "Lower the volme."
+            (echo-string
+             (current-screen)
+             (run-shell-command "mixer vol -5" t)))
+
+(defcommand volume-up () ()
+            "Raise the volme."
+            (echo-string
+             (current-screen)
+             (run-shell-command "mixer vol +5" t)))
+
+;; my hotkeys (thanks in part to http://stumpwm.svkt.org/cgi-bin/wiki.pl)
+(define-key *root-map* (kbd "D") "chromium")
+(define-key *root-map* (kbd "d") "firefox")
+(define-key *root-map* (kbd "L") "screen-saver")
+(define-key *root-map* (kbd "B") "show-battery-state")
+(define-key *root-map* (kbd "z") "sublime")
+(define-key *root-map* (kbd "q") "suspend")
+(define-key *root-map* (kbd "c") "terminal")
+(define-key *root-map* (kbd "v") "virtualbox")
+(define-key *root-map* (kbd "M--") "volume-down")
+(define-key *root-map* (kbd "M-=") "volume-up")
+(define-key *top-map* (kbd "XF86AudioLowerVolume") "volume-down")
+(define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume-up")
+
+(setq *window-format* "%n%s%80t [%20c]")
+(x-setup-once)
+
+(let ((home (sb-unix::posix-getenv "HOME")))
+  (run-shell-command (concatenate 'string "xsetbg -border black -center " home "/Pictures/stumpwm_wallpaper.jpg")))

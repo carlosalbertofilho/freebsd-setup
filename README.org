@@ -1,0 +1,137 @@
+** intro
+
+This is a personalization of the [[https://gitlab.com/duncan-bayne/freebsd-setup][ducan-bayne's]] work on based
+
+freebsd-setup is a collection of scripts designed to be run on a [[http://www.freebsd.org/)][FreeBSD]] 14.0 installation.  It currently only supports 64-bit systems.
+
+The end result is a Lispy development environment with StumpWM, Emacs, Slime etc. that also works well for Ruby on Rails development and a few other relatively arcane platforms (e.g. Inform).
+
+** installation
+1. Perform an installation of FreeBSD 13.0:
+  1. Install ~doc~, ~lib32~, ~ports~, and ~src~.
+  2. Create an Auto (ZFS) filesystem.
+  3. Choose to start ~sshd~, ~ntpd~, ~powerd~ and ~dumpdev~ on start.
+  4. As a security precaution, choose to clear ~/tmp~ on start, and randomise PIDs.
+  5. Finally, install the FreeBSD Handbook.
+2. Once booted, as root:
+  1. [[#configure-the-network][Configure the network]] by editing rc.conf.
+  2. Install portmaster with ~portsnap fetch extract && cd /usr/ports/ports-mgmt/portmaster && make clean install~, installing programmatic completion for all shells.
+  3. Install git with ~pkg install -y git~.
+  4. Clone this repo with ~cd /root && git clone https://gitlab.com/duncan-bayne/freebsd-setup~.
+  5. Run the root setup with ~cd freebsd-setup && ./setup-root.sh~. When prompted, enable threading for SBCL.
+  6. Accept defaults if prompted.
+  7. Run ~visudo~ and uncomment the line to allow all wheel members to use sudo.
+  8. Create an initial user, adding that user to the ~wheel~ group.
+  9. Reboot.
+4. As user:
+  1. Clone this repo with ~git clone https://gitlab.com/duncan-bayne/freebsd-setup~.
+  2. Run the user setup with ~cd freebsd-setup && ./setup-user.sh~.
+
+** status
+
+My [[https://duncan.bayne.id.au/blog/one-more-round-of-thinkpads.html][every-day work laptop]] is now running FreeBSD 13.0, configured with these scripts.  I'd say it's good enough for serious use on [[https://www.freebsd.org/doc/en/books/faq/hardware.html][supported hardware]].
+
+** philosophy / design decisions
+
+ * install from packages where possible, to get to a usable dev machine more quickly
+ * assume a fresh base each time, to reduce complexity by not having to test preconditions
+
+** configuration
+*** Bluetooth keyboard setup
+:PROPERTIES:
+:CUSTOM_ID: bluetooth-keyboard-setup
+:END:
+
+1. Make sure you've run the setup scripts, and rebooted.  This will ensure you're running all the right services.
+
+2. Have a read of the [[https://www.freebsd.org/doc/handbook/network-bluetooth.html][Bluetooth section of the FreeBSD Handbook]]. This will give you a good idea of how all the right services work.
+
+3. Switch your keyboard into pairing mode.  I've found threatening to pour coffee into it at this point helps the rest of the process go smoothly.
+
+4. Scan for Bluetooth devices with a command like ~hccontrol -n ubt0hci inquiry~ (replacing ~ubt0hci~ with the right identifier for your Bluetooth hardware).
+
+5. Return to step 2 and actually read the handbook section.
+
+6. Once you have the ~BD_ADDR~ for your keyboard, get its name with a command like ~hccontrol -n ubt0hci remote_name_request 00:18:01:3c:94:34~.
+
+7. Return to step 2 and re-read the bit about ~BD_ADDR~.
+
+8. Add a section to ~/etc/bluetooth/hcsecd.conf~ describing your keyboard, like:
+
+#+BEGIN_SRC
+device {
+    bdaddr	00:18:01:3c:94:34;
+    name    "FILCO Bluetooth Keyboard";
+    key	    nokey;
+    pin     nopin;
+}
+#+END_SRC
+
+9. [@9] Dump the HID descriptor for the keyboard with a command like ~bthidcontrol -a 00:18:01:3c:94:34 query | sudo tee /etc/bluetooth/bthidd.conf~.
+
+10. Restart the ~hcsecd~ and ~bthidd~ services.
+
+11. Mash some keys on your keyboard, and the magic of pairing might occur.
+
+*** configure the network
+:PROPERTIES:
+:CUSTOM_ID: configure-the-network
+:END:
+You'll need to set up your machine with network access.  Start by reading at least the relevant parts of [[https://www.freebsd.org/doc/handbook/network-communication.html][Part IV. Network Communications]] in the Handbook.
+
+My rc.conf contains the following:
+
+#+BEGIN_SRC
+hostname="w540"
+wlans_iwm0="wlan0"
+ifconfig_wlan0="WPA DHCP"
+ifconfig_em0="DHCP"
+create_args_wlan0="country AU regdomain APAC2"
+#+END_SRC
+** troubleshooting
+
+**** there are weird Unicode sequences in my Emacs terminal
+Have you tried turning it off and on again?  ([[https://gitlab.com/duncan-bayne/emacs-setup/issues/17][seriously]] :( )
+
+**** I have a Bluetooth keyboard but can't make it pair
+Try asking around in case someone you know will swap it for a USB version.  (Boy do I regret buying a mechanical Bluetooth keyboard).
+
+If that fails, I've (tersely) documented the steps in below in [[#bluetooth-keyboard-setup][Bluetooth keyboard setup]].
+
+**** I have a USB headset but can't use it with applications
+You'll need to set the default audio device with ~sysctl~.  See the solution to [[https://gitlab.com/duncan-bayne/freebsd-setup/issues/78][issue #78]].
+
+**** how do I emulate a scroll wheel?
+Especially if you're using a TrackPoint-blessed ThinkPad, you might want to emulate a scroll wheel by holding down the middle button, and moving up and down.
+
+Just add the following lines to ~etc/rc.conf~ (thanks to [[https://forums.freebsd.org/threads/xorg-conf-and-the-trackpoint-scroll.38506/post-219950][choosy23 for the solution]]):
+
+#+BEGIN_SRC
+moused_enable="YES"
+moused_flags="-VH"
+#+END_SRC
+
+**** my ThinkPad suspends, but doesn't resume
+
+Reboot into BIOS setup, and disable the Security Chip.  For reasons I don't understand, some ThinkPads won't resume if this chip is enabled.
+
+**** can I listen to my Spotify music?
+
+Yep - [[https://gitlab.com/duncan-bayne/freebsd-setup/issues/78][spotifyd]] and [[https://github.com/Rigellute/spotify-tui][spotify-tui]] are installed, and they work well on FreeBSD :)
+
+**** meta
+***** hyperlinks in this README are broken
+See the GitLab issue [[https://gitlab.com/gitlab-org/gitlab-ce/issues/19417][Emacs org docs heading anchor links]].
+
+***** list numbering in this README is broken
+See the GitLab issue [[https://gitlab.com/gitlab-org/gitlab-ce/issues/53581][Orgmode README rendering ignores plain list numbering]].
+
+**** other
+Experiencing a problem that isn't listed above, or would like to make a feature request?  Check the [[https://gitlab.com/duncan-bayne/freebsd-setup/issues][issues]] page for an existing issue, or add one of your own.
+
+** licence
+
+The scripts unique to freebsd-setup are licensed under the GNU Lesser General Public License.
+
+*** why the LGPL?
+The GPL is specifically designed to reduce the usefulness of GPL-licensed code to closed-source, proprietary software. The BSD license (and similar) don't mandate code-sharing if the BSD-licensed code is modified by licensees. The LGPL achieves the best of both worlds: an LGPL-licensed library can be incorporated within closed-source proprietary code, and yet those using an LGPL-licensed library are required to release source code to that library if they change it.

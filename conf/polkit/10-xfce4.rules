@@ -1,0 +1,16 @@
+# xfce4 rules, added by freebsd-setup
+
+polkit.addRule(function (action, subject) {
+  if ((action.id == "org.freedesktop.consolekit.system.restart" ||
+      action.id == "org.freedesktop.consolekit.system.stop")
+      && subject.isInGroup("PUTYOURGROUPHERE")) {
+    return polkit.Result.YES;
+  }
+});
+
+polkit.addRule(function (action, subject) {
+  if (action.id == "org.freedesktop.consolekit.system.suspend"
+      && subject.isInGroup("PUTYOURGROUPHERE")) {
+    return polkit.Result.YES;
+  }
+});
