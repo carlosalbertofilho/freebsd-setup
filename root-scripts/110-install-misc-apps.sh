@@ -20,4 +20,7 @@ pkg install -y \
     tmux \
     transmission-gtk \
     vlc \
-    xpdf
+    xpdf \
+    remmina \
+    thunderbird \
+    thunderbird-dictionaries
