@@ -4,7 +4,7 @@ set -e
 
 {
   echo
-  echo \# Bluetooth settings, added by freebsd-setup
+  echo \# Bluetooth settings
   echo hcsecd_enable=\"YES\"
   echo bthidd_enable=\"YES\"
   echo

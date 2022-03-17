@@ -2,6 +2,7 @@
 
 set -e
 
-git clone https://gitlab.com/duncan-bayne/emacs-setup.git ~/emacs-setup
-ln -s ~/emacs-setup/emacs ~/.emacs
-ln -s ~/emacs-setup/emacs.d ~/.emacs.d
+git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
+~/.emacs.d/bin/doom install
+rm -fr ~/.doom.d
+git clone https://github.com/carlosalbertofilho/doom.d.git ~/.doom.d

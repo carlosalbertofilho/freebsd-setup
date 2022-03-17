@@ -2,7 +2,7 @@
 
 set -e
 
-pkg install -y \
-    aspell \
-    aspell-ispell \
-    en-aspell
+portmaster \
+    textproc/aspell-ispell \
+    textproc/en-aspell \
+    portuguese/aspell-pt_BR
