@@ -22,14 +22,14 @@ touch /etc/make.conf
   echo CFLAGS=-O2 -pipe -fno-strict-aliasing
   echo COPTFLAGS=-O2 -pipe -fno-strict-aliasing
   echo \# enable speed
-  echo MALLOC_PRODUCTION="YES"
+  echo MALLOC_PRODUCTION=\"YES\"
 } >> /etc/make.conf
 
 touch /etc/src.conf
 
 {
     echo \# NO DEBUG
-    echo WITHOUT_ASSERT_DEBUG="ON"
+    echo WITHOUT_ASSERT_DEBUG=\"ON\"
 } >> /etc/src.conf
 
 cd /usr/src
