@@ -33,7 +33,27 @@ touch /etc/src.conf
 } >> /etc/src.conf
 
 cd /usr/src
-make -j12 buildworld buildkernel KERNCONF=GENERIC-NODEBUG
+touch /usr/src/sys/amd64/conf/CUSTOM-KERNEL
+{
+  echo \# Custom kernel config for NODEBUG
+  echo \# Add enable IPFW and NAT
+  echo
+  echo include GENERIC-NODEBUG
+  echo
+  echo ident CUSTOM-KERNEL
+  echo
+  echo options  IPFIREWALL                    # enables IPFW
+  echo options  IPFIREWALL_VERBOSE            # enables logging for rules with log keyword
+  echo options  IPFIREWALL_VERBOSE_LIMIT=256  # limits number of logged packets per-entry
+  echo options  IPFIREWALL_DEFAULT_TO_ACCEPT  # sets default policy to pass what is not explicitly denied
+  echo
+  echo options  IPDIVERT                      # enables NATd Support
+  echo options  IPFIREWALL_NAT                # IPFW in-Kernel NAT support
+  echo options  LIBALIAS                      # required for in-Kernel NAT / replacement for NATd
+
+} >> /usr/src/sys/amd64/conf/CUSTOM-KERNEL
+
+make -j12 buildworld buildkernel KERNCONF=CUSTOM-KERNEL
 
 echo
 echo Reboot your system
