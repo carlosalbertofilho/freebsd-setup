@@ -7,7 +7,7 @@ echo Install custom kernel
 echo
 
 cd /usr/src
-make installkernel KERNCONF=GENERIC-NODEBUG
+make installkernel KERNCONF=CUSTOM-KERNEL
 
 echo
 echo Snapshot install kernel
