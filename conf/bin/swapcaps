@@ -4,4 +4,4 @@ set -e
 
 setxkbmap -option
 setxkbmap -option ctrl:swapcaps
-setxkbmap -model abnt2 br
+setxkbmap -model  abnt2 br

@@ -6,7 +6,7 @@ echo
 echo Clone sources Ports and Kernel of the FreeBSD
 echo
 
-git clone https://git.freebsd.org/src.git /usr/src
+git clone --depth 1 https://git.freebsd.org/src.git /usr/src
 git clone https://git.freebsd.org/ports.git /usr/ports
 
 touch /etc/make.conf
@@ -53,7 +53,9 @@ touch /usr/src/sys/amd64/conf/CUSTOM-KERNEL
 
 } >> /usr/src/sys/amd64/conf/CUSTOM-KERNEL
 
-make -j12 buildworld buildkernel KERNCONF=CUSTOM-KERNEL
+echo "Enter you ZPOOL name: "
+read -r answer
+make -j"$answer" buildworld buildkernel KERNCONF=CUSTOM-KERNEL
 
 echo
 echo Reboot your system
