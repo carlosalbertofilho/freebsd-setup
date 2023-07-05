@@ -2,7 +2,7 @@
 
 set -e
 
-portmaster \
+pkg install -y \
     graphics/ImageMagick7 \
     devel/android-tools-adb \
     audio/libgpod \

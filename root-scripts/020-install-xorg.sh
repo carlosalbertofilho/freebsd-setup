@@ -3,7 +3,7 @@
 set -e
 
 # Generic xorg utilities.
-portmaster \
+pkg install -y \
     graphics/scrot \
     x11-wm/stumpwm \
     net/unison \
@@ -23,7 +23,7 @@ portmaster \
     x11/alacritty
 
 # XFCE4 desktop for pairing, etc.
-portmaster \
+pkg install -y \
     x11-wm/xfce4 \
     x11-themes/adwaita-icon-theme\
     misc/gnome-icon-theme \
